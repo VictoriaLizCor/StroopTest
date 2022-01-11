@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Prueba Stroop</title>
+    <script src="/scripts/jspsych.js"></script>
+    <script src="/scripts/downloadFile.js"></script>
+    <script src="/scripts/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="/scripts/plugins/jspsych-image-keyboard-response.js"></script>
+    <link href="/css/jspsych.css" rel="stylesheet" type="text/css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">  </head>
+  <body>hola</body>
+  <script>
+
+    /* create timeline */
+    var timeline = [];
+
+    /* define welcome message trial */
+    var welcome = {
+      type: "html-keyboard-response",
+      stimulus: "<h1>Bienvenido a la prueba. Presiona cualquier tecla para comenzar</h1>"
+    };
+    timeline.push(welcome);
+
+    /* define instruccion1 trial */
+    var instrucciones1 = {
+      type: "html-keyboard-response",
+      stimulus: "<img src='/img/instrucciones1.png'>",
+      //post_trial_gap: 1000
+    };
+    timeline.push(instrucciones1);
+
+	var instrucciones2 = {
+      type: "html-keyboard-response",
+      stimulus: "<img src='/img/instrucciones2.png'>"
+      //post_trial_gap: 1000
+    };
+    timeline.push(instrucciones2);
+    /* test trials */
+
+    var test_stimuli = [
+      { stimulus: "/img/amarilloamarillo.png", data: { test_part: 'test', correct_response: 'a' } },
+      { stimulus: "/img/amarilloverde.png", 	  data: { test_part: 'test', correct_response: 'v' } },
+      { stimulus: "/img/amarilloazul.png",     data: { test_part: 'test', correct_response: 'z' } },
+      { stimulus: "/img/amarillorojo.png",     data: { test_part: 'test', correct_response: 'r' } },
+      //{ stimulus: "/img/rojoamarillo.png",     data: { test_part: 'test', correct_response: 'a' } },
+      //{ stimulus: "/img/rojoverde.png",        data: { test_part: 'test', correct_response: 'v' } },
+      //{ stimulus: "/img/rojoazul.png",         data: { test_part: 'test', correct_response: 'z' } },
+      //{ stimulus: "/img/rojorojo.png", 		  data: { test_part: 'test', correct_response: 'r' } },
+      //{ stimulus: "/img/verdeamarillo.png", 	  data: { test_part: 'test', correct_response: 'a' } },
+      //{ stimulus: "/img/verdeverde.png", 	  data: { test_part: 'test', correct_response: 'v' } },
+      //{ stimulus: "/img/verdeazul.png", 		  data: { test_part: 'test', correct_response: 'z' } },
+      //{ stimulus: "/img/verderojo.png", 	      data: { test_part: 'test', correct_response: 'r' } },
+      //{ stimulus: "/img/azulamarillo.png", 	  data: { test_part: 'test', correct_response: 'a' } },
+      //{ stimulus: "/img/azulverde.png", 	      data: { test_part: 'test', correct_response: 'v' } },
+      //{ stimulus: "/img/azulazul.png", 		  data: { test_part: 'test', correct_response: 'z' } },
+      //{ stimulus: "/img/azulrojo.png", 		  data: { test_part: 'test', correct_response: 'r' } },
+    ];
+
+
+    var fixation = {
+      type: 'html-keyboard-response',
+      stimulus: '<div style="font-size:150px;">+</div>',
+      choices: jsPsych.NO_KEYS,
+      trial_duration: function(){
+        return jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0];
+      },
+      data: {test_part: 'fixation'}
+    }
+
+    var test = {
+      type: "image-keyboard-response",
+      //stimulus: jsPsych.timelineVariable(jsPsych.randomization.sampleWithoutReplacement('stimulus')),
+      stimulus: jsPsych.timelineVariable('stimulus'),
+      choices: ['a', 'r', 'v', 'z'],
+      data: jsPsych.timelineVariable('data'),
+      on_finish: function(data){
+	    data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      //Object.assign(data, jsPsych.getAllTimelineVariables());
+	
+      },
+    }
+
+    var test_procedure = {
+      timeline: [fixation, test],
+      timeline_variables: test_stimuli,
+      //repetitions: 5,
+      repetitions: 1,
+      randomize_order: true,
+
+    }
+    timeline.push(test_procedure);
+
+    /* define debrief */
+
+    var debrief_block = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+
+        var trials = jsPsych.data.get().filter({test_part: 'test'});
+        var correct_trials = trials.filter({correct: true});
+        var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
+		    var correctos = Math.round(correct_trials.count());
+        var rt = Math.round(correct_trials.select('rt').mean());
+
+        return "<p>Respondiste correctamente "+correctos+" de los ensayos.</p>" +
+		"<p>Respondiste correctamente "+accuracy+"% de los ensayos.</p>"+
+        "<p>Tu tiempo promedio de reaccion fue:"+rt+"ms.</p>"+
+        "<p>Presiona cualquier tecla para concluir esta prueba. ¡GRACIAS!</p>";
+
+      }
+    };
+    timeline.push(debrief_block);
+
+    /* start the experiment */
+    jsPsych.init({
+      timeline: timeline,
+      on_finish: function() {
+        //var csv = jsPsych.data.get().csv();
+        //var filename = "default_name.csv";
+		var json = jsPsych.data.get().json();
+        var filename = "default_name.txt";
+        //console.log(json);
+        downloadFile(json, filename);
+        jsPsych.data.displayData();
+      }
+    });
+  </script>
+</html>
