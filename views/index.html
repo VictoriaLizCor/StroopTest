@@ -22,7 +22,14 @@
       stimulus: "<h1>Bienvenido a la prueba. Presiona cualquier tecla para comenzar</h1>"
     };
     timeline.push(welcome);
-
+    	
+    timeline.push({
+     type: 'audio-keyboard-response',
+     stimulus: 'img/tono1.wav',
+     choices: jsPsych.NO_KEYS,
+	 trial_ends_after_audio: true
+    });  
+ 	
     /* define instruccion1 trial */
     var instrucciones1 = {
       type: "html-keyboard-response",
@@ -93,7 +100,13 @@
     timeline.push(test_procedure);
 
     /* define debrief */
-
+    timeline.push({
+	    type: 'audio-keyboard-response',
+	    stimulus: 'img/tono1.wav',
+	    choices: jsPsych.NO_KEYS,
+		trial_ends_after_audio: true
+     });  
+	  
     var debrief_block = {
       type: "html-keyboard-response",
       stimulus: function() {
