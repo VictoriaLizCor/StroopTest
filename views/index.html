@@ -133,11 +133,8 @@
       on_finish: function() {
         var json = jsPsych.data.get().csv();
         var filename = "default_name.csv";
-// 	var json = jsPsych.data.get().json();
-//         var filename = "default_name.txt";
-        //console.log(json);
         downloadFile(json, filename);
-        jsPsych.data.displayData();
+        jsPsych.data.displayData('csv');
       }
     });
   </script>
